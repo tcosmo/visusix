@@ -11,13 +11,13 @@ use glutin_window::GlutinWindow as Windoww;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventLoop, EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
-use piston::window::{Window,WindowSettings};
+use piston::window::{Window, WindowSettings};
 
 use clap::{App, Arg};
 
 pub use crate::state::*;
 pub use crate::state_controller::CCAStateController;
-pub use crate::state_view::{CCAStateViewSettings, CCAStateView};
+pub use crate::state_view::{CCAStateView, CCAStateViewSettings};
 
 mod state;
 mod state_controller;
@@ -60,7 +60,7 @@ fn main() {
 
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |mut c, g| {
-                use graphics::{clear,Transformed};
+                use graphics::{clear, Transformed};
 
                 clear(state_view_settings.background_color, g);
                 state_view.draw(&state_controller, &mut c, g);

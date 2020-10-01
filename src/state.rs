@@ -35,9 +35,13 @@ impl TritBitDomino {
 }
 
 /// Stores Collatz CA state.
+#[derive(Debug, Clone)]
 pub struct CCAState {
     /// State representation
     pub cells: VecDeque<TritBitDomino>,
+
+    /// Initial configuration
+    pub init_str: String,
 }
 
 impl CCAState {
@@ -56,8 +60,38 @@ impl CCAState {
             cells.push_back(tbd);
         }
         cells.back_mut().unwrap().is_tail = true;
-        println!("{:?}", cells.back());
-        Ok(CCAState { cells })
+        Ok(CCAState {
+            cells,
+            init_str: base_6_str.to_string(),
+        })
+    }
+
+    /// Reset state to initial state
+    pub fn reset(&mut self) -> () {
+        self.cells = CCAState::from_str(&self.init_str[..])
+            .unwrap()
+            .cells
+            .clone();
+    }
+
+    /// Flushes cells on the tail
+    pub fn flush_tail(&mut self) -> () {
+        let mut can_flush = false;
+        for tbd in self.cells.iter().rev() {
+            if !tbd.is_tail {
+                break;
+            }
+            if tbd.trit_bit[2] {
+                can_flush = true;
+                break;
+            }
+        }
+
+        if can_flush {
+            while !self.cells.back().unwrap().trit_bit[2] {
+                self.cells.pop_back();
+            }
+        }
     }
 
     /// Translate current state to base 6 string
@@ -83,11 +117,14 @@ impl CCAState {
     /// Translate base 6 digit to trit-bit domino
     fn b6_to_tbd(char_base_6_digit: char) -> Result<TritBitDomino, String> {
         if !(char_base_6_digit >= '0' && char_base_6_digit <= '5') {
-            return Err(format!("`{}` is not a valid base 6 digit.", char_base_6_digit));
+            return Err(format!(
+                "`{}` is not a valid base 6 digit.",
+                char_base_6_digit
+            ));
         }
 
         let digit = (char_base_6_digit as u8) - ('0' as u8);
-        let trit_bit_domino = TritBitDomino::from_base_6_digit(digit,false)?;
+        let trit_bit_domino = TritBitDomino::from_base_6_digit(digit, false)?;
         return Ok(trit_bit_domino);
     }
 }
